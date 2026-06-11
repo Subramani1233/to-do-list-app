@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Subu Task Manager</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage" class="page-center">
+  <div class="login-card">
+    <div class="login-logo">✅</div>
+    <h2>Subu Task Manager</h2>
+    <p class="login-sub">Login to manage your tasks</p>
+    <input id="username" type="text" placeholder="Username" autocomplete="username">
+    <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+    <button onclick="login()" class="btn-primary">Login</button>
+    <p id="msg" class="error-msg"></p>
+  </div>
+</div>
+
+<!-- APP PAGE -->
+<div id="appPage" style="display:none">
+  <header class="app-header">
+    <h1>📋 My Tasks</h1>
+    <div class="header-right">
+      <div class="streak-pill" onclick="openStreakModal()">
+        🔥 <span id="streakCount">0</span> day streak
+      </div>
+      <span id="notifStatus" class="notif-badge" onclick="toggleNotifications()">🔔 Notifications</span>
+      <button onclick="logout()" class="btn-logout">Logout</button>
+    </div>
+  </header>
+
+  <!-- ADD TASK FORM -->
+  <div class="add-task-card">
+    <h3>Add New Task</h3>
+    <div class="form-row">
+      <input id="task" type="text" placeholder="Task title..." class="input-wide">
+      <input id="taskDesc" type="text" placeholder="Description (optional)">
+    </div>
+    <div class="form-row">
+      <div class="field-group">
+        <label>Deadline</label>
+        <input id="deadline" type="datetime-local">
+      </div>
+      <div class="field-group">
+        <label>Priority</label>
+        <select id="priority">
+          <option value="low">🟢 Low</option>
+          <option value="medium" selected>🟡 Medium</option>
+          <option value="high">🔴 High</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Category</label>
+        <input id="category" type="text" placeholder="e.g. Work, Personal">
+      </div>
+    </div>
+    <button onclick="addTask()" class="btn-primary">+ Add Task</button>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
+    <button class="filter-btn" onclick="setFilter('done',this)">Done</button>
+    <input id="searchBox" type="text" placeholder="🔍 Search tasks..." oninput="render()" class="search-input">
+  </div>
+
+  <!-- TASK LIST -->
+  <ul id="list"></ul>
+
+  <!-- EVIDENCE MODAL -->
+  <div id="evidenceModal" class="modal-backdrop" style="display:none">
+    <div class="modal-box">
+      <h3>Submit Completion Evidence</h3>
+      <p class="modal-sub">Task: <strong id="evidenceTaskName"></strong></p>
+      <div class="upload-area" onclick="document.getElementById('evidenceFile').click()" id="uploadArea">
+        <div class="upload-icon">📎</div>
+        <p>Click to upload image/file<br><span class="upload-hint">JPG, PNG, PDF supported</span></p>
+        <input type="file" id="evidenceFile" accept="image/*,.pdf" style="display:none" onchange="previewEvidence()">
+      </div>
+      <div id="evidencePreview" style="display:none">
+        <img id="previewImg" src="" alt="preview" style="display:none">
+        <p id="previewFileName" class="file-name-label"></p>
+      </div>
+      <textarea id="evidenceNote" placeholder="Add a note about completion (optional)..." rows="3"></textarea>
+      <div class="modal-btns">
+        <button onclick="closeEvidenceModal()" class="btn-cancel">Cancel</button>
+        <button onclick="submitEvidence()" class="btn-primary">✅ Mark Complete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVIDENCE VIEW MODAL -->
+  <div id="viewEvidenceModal" class="modal-backdrop" style="display:none">
+    <div class="modal-box">
+      <h3>Completion Evidence</h3>
+      <p class="modal-sub">Task: <strong id="viewTaskName"></strong></p>
+      <div id="viewEvidenceContent"></div>
+      <div class="modal-btns">
+        <button onclick="closeViewModal()" class="btn-primary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STREAK MODAL -->
+  <div id="streakModal" class="modal-backdrop" style="display:none">
+    <div class="modal-box streak-modal-box">
+      <div class="streak-modal-header">
+        <div class="streak-fire-big">🔥</div>
+        <div>
+          <h3><span id="streakModalCount">0</span> day streak!</h3>
+          <p class="modal-sub" id="streakModalSub">Keep it going!</p>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="streak-stats-row">
+        <div class="streak-stat">
+          <div class="streak-stat-val" id="statLongest">0</div>
+          <div class="streak-stat-label">Longest Streak</div>
+        </div>
+        <div class="streak-stat">
+          <div class="streak-stat-val" id="statTotal">0</div>
+          <div class="streak-stat-label">Total Active Days</div>
+        </div>
+        <div class="streak-stat">
+          <div class="streak-stat-val" id="statDone">0</div>
+          <div class="streak-stat-label">Tasks Completed</div>
+        </div>
+      </div>
+
+      <!-- Streak Calendar -->
+      <div class="streak-calendar-section">
+        <h4>Streak Calendar</h4>
+        <div class="cal-nav">
+          <button onclick="calPrev()" class="cal-nav-btn">‹</button>
+          <span id="calMonthLabel"></span>
+          <button onclick="calNext()" class="cal-nav-btn">›</button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+
+      <div class="modal-btns">
+        <button onclick="closeStreakModal()" class="btn-primary">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
